@@ -1,6 +1,6 @@
 from os import removedirs, truncate
 from Assignment import Assignment
-from old_gui import *
+from Backend import *
 from Person import *
 from Semester import *
 import re
@@ -14,8 +14,8 @@ can add and view classes and basic assignments
 
 
 def main():
-    gui = GUI()
-    gui.load()
+    back = Backend()
+    back.load()
     print("Hello, welcome to Planner App. ")
     valid = False
     while(not valid):
@@ -24,12 +24,12 @@ def main():
         if(selection == "0"):
             quit()
         elif(selection == "1"):
-            #sign 
+            #sign in
             valid_user = False
             while(not valid_user):
                 username = input("Please enter username: ")
                 password = input("Please enter passowrd: ")
-                user = gui.validate_user(username, password)
+                user = back.validate_user(username, password)
                 if(user == -1):
                     print("Username not in database, please sign up")
                     break
@@ -42,13 +42,21 @@ def main():
             #sign up
             valid_input = False
             while(not valid_input):
+                valid_type = False
+                print("Please input user type 1 for student 2 for teacher")
+                while(not valid_type):
+                    user_type = input("Enter selection: ")
+                    if(user_type == "1" or user_type == "2"):
+                        valid_type = True
+                    else:
+                        print("Invalid input, please try again")                 
                 valid_username = False
                 while(not valid_username):
                     username = input("Please input username: ")
-                    if(gui.validate_user(username, "") == -1):
+                    if(back.validate_user(username, "") == -1):
                         password = input("Please input password: ")
                         name = input("please input your name: ")
-                        user = gui.add_user(username, password, name)
+                        user = back.add_user(username, password, name, user_type)
                         valid_username, valid_input, valid = True , True, True
                     else:
                         print("username already exists, please choose another")
@@ -60,9 +68,9 @@ def main():
                 removing = True
                 while(removing):       
                     rmvuser = input("input user to be deleted: ")
-                    gui.delete_user(rmvuser)
-                    gui.log_out()
-                    gui.load()
+                    back.delete_user(rmvuser)
+                    back.log_out()
+                    back.load()
                     rmmore_sel = input("would you like to remove another(y/n)? ").lower()
                     if(rmmore_sel != "y"):
                         removing = False
@@ -73,7 +81,7 @@ def main():
         #hidden selection to see all users
         elif(selection == "letstakealook"):
             print("\nUsers:")
-            for user in gui.user_objs:
+            for user in back.user_objs:
                 print(user.get_name())
             print("")
 
@@ -90,11 +98,12 @@ def main():
             break
         elif(selection == "-1"):
             if(input("Are you sure you would like to delete your account (y/n)? ").lower() == "y"):
-                gui.delete_user(user.get_username())
+                back.delete_user(user.get_username())
                 break
             else:
                 print("good choice :)")
 
+        #add class
         elif(selection == "1"):
             valid_name = False
             while(not valid_name):
@@ -117,7 +126,12 @@ def main():
                     valid_date = True
                 else:
                     print("date not valid, try again")
-            user.add_class(Class(class_name, start_date, end_date))
+            if(type(user) == Student):
+                teachers = back.get_teachers()
+                user.add_class(Class(class_name, start_date, end_date), teachers)
+            else:
+                students = back.get_students()
+                user.add_class(Class(class_name, start_date, end_date), students)
 
         elif(selection == "2"):
             print("\n*** Classes ***")
@@ -125,6 +139,7 @@ def main():
             print("")
             input("Press enter to continue")
 
+        #remove class
         elif(selection == "3"):
             valid_name = False
             while(not valid_name):
@@ -134,11 +149,16 @@ def main():
                 else:
                     print("Incorrect format, please try again")
             if(user.get_class(class_name) != -1):
-                user.remove_class(user.get_class(class_name))
+                if(type(user) == Student):
+                    user.remove_class(user.get_class(class_name))
+                else:
+                    students = back.get_students()
+                    user.remove_class(user.get_class(class_name), students)
                 input(f"Class: {class_name} was deleted, press enter to continue")
             else:
                 input("That class does not exist, press enter to continue")
 
+        #add assignment
         elif(selection == "4"):
             valid_name = False
             while(not valid_name):
@@ -171,19 +191,25 @@ def main():
                             valid_date = True
                         else:
                             print("date not valid, try again")
-                    user.add_assignment(user.get_class(class_name), Assignment(assignment_name, start_date, end_date))
-                    print("it gets here")
+                    description = input("Enter a description of the assignment(press enter for no description): ")
+                    if(type(user) == Student):
+                        user.add_assignment(user.get_class(class_name), Assignment(assignment_name, start_date, end_date, description))
+                    else:
+                        students = back.get_students()
+                        user.add_assignment(user.get_class(class_name), Assignment(assignment_name, start_date, end_date, description), students)
                 elif(assignment_name == "0"):
                     break
                 else:
                     print("Assignment already exists")
 
+        #Show assignments
         elif(selection == "5"):
             print("\n*** Assignments ***\n")
             user.show_assignments()
             print("")
             input("Press enter to continue")
 
+        #Remove assignment
         elif(selection == "6"):
             valid_name = False
             while(not valid_name):
@@ -202,7 +228,11 @@ def main():
                 assignment_name = input("Enter name of assignment or 0 to go back: ")
                 if(user.get_assignment(class_name, assignment_name) != -1):
                     valid_name = True
-                    user.remove_assignment(user.get_class(class_name), user.get_assignment(class_name, assignment_name))
+                    if(type(user) == Student):
+                        user.remove_assignment(user.get_class(class_name), user.get_assignment(class_name, assignment_name))
+                    else:
+                        students = back.get_students()
+                        user.remove_assignment(user.get_class(class_name), user.get_assignment(class_name, assignment_name), students)
                     print(f"Assignment: {assignment_name} from Class: {class_name} was succesfully deleted")
                 elif(assignment_name == "0"):
                     break
@@ -211,14 +241,14 @@ def main():
 
 
 
-    gui.log_out()
+    back.log_out()
 
 
 main()
 """def fixdis():
-    gui = GUI()
-    gui.add_user("dalt", "123", "Dalton")
-    gui.log_out()
+    back = Backend()
+    back.add_user("dalt", "123", "Dalton", "1")
+    back.log_out()
 
 fixdis()"""
 

@@ -5,11 +5,12 @@ Class for general assignments
 """
 
 class Assignment:
-    def __init__(self, name, date_issued  = "", date_due = "", date_completed = ""):
+    def __init__(self, name, date_issued  = "", date_due = "", date_completed = "", description = ""):
         self.name = name
         self.date_issued = date_issued
         self.date_due = date_due
         self.date_completed = date_completed
+        self.description = description
 
     def get_name(self):
         return self.name
