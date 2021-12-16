@@ -95,6 +95,7 @@ class Student(Person):
         """
 
         if((all(i[1].get_name() != new_assignment.get_name() or new_assignment.get_name() not in existing_class.get_assignment_names() for i in self.assignments)) and any(k.get_name() == existing_class.get_name() for k in self.classes)):
+            existing_class = self.get_class(existing_class.get_name())
             self.assignments.append((existing_class, new_assignment))
             existing_class.add_assignment(new_assignment)
             print(f"Succesfully added assignment: {new_assignment.get_name()}")
@@ -111,8 +112,10 @@ class Student(Person):
 
     def remove_assignment(self, existing_class, existing_assignment):
         if(any(i[0].get_name() == existing_class.get_name() and i[1].get_name() == existing_assignment.get_name() for i in self.assignments)):
-            existing_assignment = existing_class.get_assignment(existing_assignment.get_name())
+            existing_class = self.get_class(existing_class.get_name())
+            existing_assignment = self.get_assignment(existing_class.get_name(), existing_assignment.get_name())
             self.assignments.remove((existing_class, existing_assignment))
+            existing_assignment = existing_class.get_assignment(existing_assignment.get_name())
             existing_class.remove_assignment(existing_assignment)
             
     def show_assignments(self):
@@ -209,6 +212,7 @@ class Teacher(Person):
             existing_class.add_assignment(new_assignment)
             for student in students:
                 if(student.get_class(existing_class.get_name()) != -1):
+                    student.get_class(existing_class.get_name())
                     student.add_assignment(existing_class, new_assignment)
             print(f"Succesfully added assignment: {new_assignment.get_name()}")
             return 1
@@ -240,12 +244,19 @@ class Teacher(Person):
             self.assignments.remove((existing_class, existing_assignment))
             for student in students:
                 if(student.get_class(existing_class.get_name()) != -1):
+                    existing_assignment = student.get_assignment(existing_class.get_name(), existing_assignment.get_name())
+                    existing_class = student.get_class(existing_class.get_name())
                     student.remove_assignment(existing_class, existing_assignment)
 
     def add_student_to_class(self, existing_class, new_student):
         existing_class = self.get_class(existing_class.get_name())
         if(all(i.get_name() != new_student.get_name() for i in self.classes[existing_class])):
             self.classes[existing_class].append(new_student)
+
+    def remove_student_from_classes(self, existing_student):
+        for existing_class in self.classes.keys():
+            self.classes[existing_class].remove(existing_student)
+
 
     def __str__(self):
         return f"{self.name}"

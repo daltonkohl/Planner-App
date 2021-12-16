@@ -37,7 +37,7 @@ class Assignment:
         self.date_completed = date_completed
 
     def __str__(self):
-        return f"Assignment Name: {self.name}\nDate Issued: {self.date_issued}\nDate Due: {self.date_due}\nDate Completed: {self.date_completed}"
+        return f"Assignment Name: {self.name}\nDate Issued: {self.date_issued}\nDate Due: {self.date_due}\nDate Completed: {self.date_completed} \nDescription: {self.description}"
 
     def __eq__(self, other):
         if self is other:

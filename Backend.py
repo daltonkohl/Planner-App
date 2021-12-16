@@ -80,7 +80,7 @@ class Backend():
             f.close()
             with open("username_database.txt", "w") as f:
                 for line in lines:
-                    if line.strip("\n") != f"{username},{self._user_dict[username][0]},":
+                    if line.strip("\n") != f"{self.encrypt(username)},{self.encrypt(self._user_dict[username][0])},":
                         f.write(line)
             f.close()
 
@@ -118,6 +118,11 @@ class Backend():
             if(type(user) == Teacher):
                 temp.append(user)
         return temp
+
+    def get_user(self, user_name):
+        for user in self.user_objs:
+            if(user_name == user.get_username()):
+                return user
                  
 
 
@@ -140,4 +145,4 @@ class Backend():
 
 
     def __str__(self):
-        return f"number of users: {self.user_count}\nusername log: {self._user_dict}"
+        return f"number of users: {self.user_count}\nusername log: {self._user_dict} user_objs:{self.user_objs}"

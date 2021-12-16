@@ -67,8 +67,19 @@ def main():
             if(rmuser_sel == "y"):
                 removing = True
                 while(removing):       
-                    rmvuser = input("input user to be deleted: ")
-                    back.delete_user(rmvuser)
+                    rmvuser_name = input("input user to be deleted: ")
+                    rmvuser = back.get_user(rmvuser_name)
+                    if(type(rmvuser) == Student):
+                        teachers = back.get_teachers()
+                        for teacher in teachers:
+                            teacher.remove_student_from_classes(rmvuser)
+                    else:
+                        students = back.get_students()
+                        for student in students:
+                            for existing_class in student.get_class_list():
+                                if(existing_class.get_teacher().get_name() == rmvuser.get_name()):
+                                    existing_class.remove_teacher()
+                    back.delete_user(rmvuser_name)
                     back.log_out()
                     back.load()
                     rmmore_sel = input("would you like to remove another(y/n)? ").lower()
@@ -85,6 +96,18 @@ def main():
                 print(user.get_name())
             print("")
 
+        elif(selection == "wipeit"):
+            if(input("Are you sure you want to wipe? (y/n): ").lower() == "y"):
+                f = open("user_database.txt", "w")
+                f.close()
+                f = open("username_database.txt", "w")
+                f.close()
+                print("its all gone")
+            else:
+                print("it lives to see another day")
+
+
+
 
         else:
             print("Selection was not valid, please try again")
@@ -94,10 +117,24 @@ def main():
     while(doin_stuff):
         print("Choose one of the following options: \n(-1) Delete account \n(0) Log out \n(1) Add class \n(2) Show classes \n(3) Remove Class \n(4) Add Assignment \n(5) Show Assignments \n(6) Remove Assignment")
         selection = input("Enter Selection: ")
+
+        #log out
         if(selection == "0"):
             break
+
+        #delete account
         elif(selection == "-1"):
             if(input("Are you sure you would like to delete your account (y/n)? ").lower() == "y"):
+                if(type(user) == Student):
+                    teachers = back.get_teachers()
+                    for teacher in teachers:
+                        teacher.remove_student_from_classes(user)
+                else:
+                    students = back.get_students()
+                    for student in students:
+                        for existing_class in student.get_class_list():
+                            if(existing_class.get_teacher().get_name() == user.get_name()):
+                                existing_class.remove_teacher()
                 back.delete_user(user.get_username())
                 break
             else:
@@ -176,6 +213,8 @@ def main():
             while(not valid_name):
                 assignment_name = input("Enter name of assignment or 0 to go back: ")
                 if(user.get_assignment(class_name, assignment_name) == -1):
+                    if(assignment_name == "0"):
+                        break
                     valid_name = True
                     valid_date = False
                     while(not valid_date):
@@ -193,12 +232,10 @@ def main():
                             print("date not valid, try again")
                     description = input("Enter a description of the assignment(press enter for no description): ")
                     if(type(user) == Student):
-                        user.add_assignment(user.get_class(class_name), Assignment(assignment_name, start_date, end_date, description))
+                        user.add_assignment(user.get_class(class_name), Assignment(assignment_name, start_date, end_date, "", description))
                     else:
                         students = back.get_students()
-                        user.add_assignment(user.get_class(class_name), Assignment(assignment_name, start_date, end_date, description), students)
-                elif(assignment_name == "0"):
-                    break
+                        user.add_assignment(user.get_class(class_name), Assignment(assignment_name, start_date, end_date, "", description), students)
                 else:
                     print("Assignment already exists")
 
@@ -251,4 +288,5 @@ main()
     back.log_out()
 
 fixdis()"""
+
 
