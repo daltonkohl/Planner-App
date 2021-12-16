@@ -1,5 +1,6 @@
 import pickle
 from Person import *
+import datetime
 
 class Backend():
 
@@ -124,6 +125,12 @@ class Backend():
             if(user_name == user.get_username()):
                 return user
                  
+    def get_current_date(self):
+        now = str(datetime.datetime.now())
+        now = now.split()[0].split("-")
+        month, day, year = now[1], now[2], now[0]
+        date = f"{month}/{day}/{year}"
+        return date
 
 
     def load(self):

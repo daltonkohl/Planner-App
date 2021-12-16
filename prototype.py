@@ -115,7 +115,10 @@ def main():
     print(f"\nWelcome, {user.get_name()}")
     doin_stuff = True
     while(doin_stuff):
-        print("Choose one of the following options: \n(-1) Delete account \n(0) Log out \n(1) Add class \n(2) Show classes \n(3) Remove Class \n(4) Add Assignment \n(5) Show Assignments \n(6) Remove Assignment")
+        if(type(user) == Student):
+            print("Choose one of the following options: \n(-1) Delete account \n(0) Log out \n(1) Add class \n(2) Show classes \n(3) Remove Class \n(4) Add Assignment \n(5) Show Assignments \n(6) Remove Assignment \n(7) Complete Assignment")
+        else:
+            print("Choose one of the following options: \n(-1) Delete account \n(0) Log out \n(1) Add class \n(2) Show classes \n(3) Remove Class \n(4) Add Assignment \n(5) Show Assignments \n(6) Remove Assignment")
         selection = input("Enter Selection: ")
 
         #log out
@@ -275,6 +278,9 @@ def main():
                     break
                 else:
                     print("Assignment does not exist")
+
+        #complete assginment implement later
+
 
 
 
